@@ -1,3 +1,5 @@
+import typing
+
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
@@ -7,6 +9,15 @@ from matplotlib.backends.backend_pdf import PdfPages
 
 class DataLoader:
     def __init__(self, x, num_times_per_obs, mini_batch_size):
+        """
+        Splits the given data into input and target tensors. Only for learning on one forcing amplitude trajectory.
+
+        :param x: Data.
+        :param num_times_per_obs: Target timespan.
+        :param mini_batch_size: Size of the batch.
+
+        :return: Input and target tensors
+        """
         self.x = x
         self.num_timesteps = x.shape[0]
         self.num_times_per_obs = num_times_per_obs
@@ -24,7 +35,7 @@ class DataLoader:
             np.random.shuffle(self.indices)
             raise StopIteration
 
-        s = self.indices[self.current_index : self.current_index + self.mini_batch_size]
+        s = self.indices[self.current_index: self.current_index + self.mini_batch_size]
         self.current_index += self.mini_batch_size
 
         x0_train = self.x[s, :]
@@ -33,7 +44,7 @@ class DataLoader:
 
         for i, start_index in enumerate(s):
             targets[:, i, :] = self.x[
-                start_index : start_index + self.num_times_per_obs, :
+                start_index: start_index + self.num_times_per_obs, :
             ]
 
         return (
@@ -45,64 +56,17 @@ class DataLoader:
         return int(np.ceil(len(self.indices) / self.mini_batch_size))
 
 
-def assert_test_data(train_data, splitted_test_data, seq=None):
-    train_data = torch.tensor(train_data, dtype=torch.float32)
-    splitted_test_data = torch.tensor(splitted_test_data, dtype=torch.float32)
-
-    if seq is None:
-        x_test = torch.zeros(7, 2)
-        x_test[0] = splitted_test_data[0][0, :-1]
-        x_test[1] = splitted_test_data[1][0, :-1]
-        x_test[2] = train_data[0, :-1]
-        x_test[3] = splitted_test_data[2][0, :-1]
-        x_test[4] = train_data[2500, :-1]
-        x_test[5] = splitted_test_data[3][0, :-1]
-        x_test[6] = splitted_test_data[4][0, :-1]
-
-        forcings = torch.zeros(7, 2500, 1)
-        forcings[0] = splitted_test_data[0, :, -1].view(-1, 1)
-        forcings[1] = splitted_test_data[1, :, -1].view(-1, 1)
-        forcings[2] = train_data[0:2500, -1].view(-1, 1)
-        forcings[3] = splitted_test_data[2, :, -1].view(-1, 1)
-        forcings[4] = train_data[2500:, -1].view(-1, 1)
-        forcings[5] = splitted_test_data[3, :, -1].view(-1, 1)
-        forcings[6] = splitted_test_data[4, :, -1].view(-1, 1)
-
-        y_test = torch.zeros(7, 2500, 2)
-        y_test[0] = splitted_test_data[0, :, :-1]
-        y_test[1] = splitted_test_data[1, :, :-1]
-        y_test[2] = train_data[0:2500, :-1]
-        y_test[3] = splitted_test_data[2, :, :-1]
-        y_test[4] = train_data[2500:, :-1]
-        y_test[5] = splitted_test_data[3, :, :-1]
-        y_test[6] = splitted_test_data[4, :, :-1]
-
-        return x_test, forcings, y_test
-
-    else:
-        x_test = torch.zeros(7, seq, 3)
-        x_test[0] = splitted_test_data[0][0:seq, :]
-        x_test[1] = splitted_test_data[1][0:seq, :]
-        x_test[2] = train_data[0:seq, :]
-        x_test[3] = splitted_test_data[2][0:seq, :]
-        x_test[4] = train_data[2500 : 2500 + seq, :]
-        x_test[5] = splitted_test_data[3][0:seq, :]
-        x_test[6] = splitted_test_data[4][0:seq, :]
-
-        y_test = torch.zeros(7, 2500, 3)
-        y_test[0] = splitted_test_data[0]
-        y_test[1] = splitted_test_data[1]
-        y_test[2] = train_data[0:2500, :]
-        y_test[3] = splitted_test_data[2]
-        y_test[4] = train_data[2500:, :]
-        y_test[5] = splitted_test_data[3]
-        y_test[6] = splitted_test_data[4]
-
-        return x_test, y_test
-
-
 class FullDataLoader:
     def __init__(self, x, num_times_per_obs, mini_batch_size):
+        """
+        Splits the given data into input and target tensors. To use when the data contains trajectories from two different forcing amplitudes.
+
+        :param x: Data.
+        :param num_times_per_obs: Target timespan.
+        :param mini_batch_size: Size of the batch.
+
+        :return: Input and target tensors
+        """
         self.x = x
         self.num_timesteps = x.shape[0]
         self.num_times_per_obs = num_times_per_obs
@@ -135,14 +99,14 @@ class FullDataLoader:
 
         half_batch_size = self.mini_batch_size // 2
 
-        s1 = self.indices1[self.current_index1 : self.current_index1 + half_batch_size]
-        s2 = self.indices2[self.current_index2 : self.current_index2 + half_batch_size]
+        s1 = self.indices1[self.current_index1: self.current_index1 + half_batch_size]
+        s2 = self.indices2[self.current_index2: self.current_index2 + half_batch_size]
 
         self.current_index1 += half_batch_size
         self.current_index2 += half_batch_size
 
         s = np.concatenate((s1, s2))
-        np.random.shuffle(s)  # Shuffle to mix datapoints from both halves
+        np.random.shuffle(s)
 
         x0_train = self.x[s, :-1]
 
@@ -151,10 +115,10 @@ class FullDataLoader:
 
         for i, start_index in enumerate(s):
             targets[:, i, :] = self.x[
-                start_index : start_index + self.num_times_per_obs, :-1
+                start_index: start_index + self.num_times_per_obs, :-1
             ]
             forcings[:, i, :] = self.x[
-                start_index : start_index + self.num_times_per_obs, -1
+                start_index: start_index + self.num_times_per_obs, -1
             ].reshape(-1, 1)
 
         return (
@@ -167,73 +131,67 @@ class FullDataLoader:
         return int(np.ceil(len(self.indices1) / (self.mini_batch_size // 2)))
 
 
-def create_batch(num_timesteps, num_times_per_obs, mini_batch_size, x):
-    s = np.random.permutation(num_timesteps - num_times_per_obs + 1)[:mini_batch_size]
+def assert_test_data(
+        train_data: np.ndarray,
+        splitted_test_data: np.ndarray
+) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    """
+    Reshapes the train and test data for the prediction process.
 
-    x0_train = x[s, :]
+    :param train_data: Training data.
+    :param splitted_test_data: Splitted test data.
 
-    targets = np.zeros((num_times_per_obs, mini_batch_size, 3))
+    :return: Forcing, x_test, y_test.
+    """
+    train_data = torch.tensor(train_data, dtype=torch.float32)
+    splitted_test_data = torch.tensor(splitted_test_data, dtype=torch.float32)
 
-    for i, start_index in enumerate(s):
-        targets[:, i, :] = x[start_index : start_index + num_times_per_obs, :]
+    x_test = torch.zeros(7, 2)
+    x_test[0] = splitted_test_data[0][0, :-1]
+    x_test[1] = splitted_test_data[1][0, :-1]
+    x_test[2] = train_data[0, :-1]
+    x_test[3] = splitted_test_data[2][0, :-1]
+    x_test[4] = train_data[2500, :-1]
+    x_test[5] = splitted_test_data[3][0, :-1]
+    x_test[6] = splitted_test_data[4][0, :-1]
 
-    return torch.tensor(x0_train, dtype=torch.float32), torch.tensor(
-        targets, dtype=torch.float32
-    )
+    forcings = torch.zeros(7, 2500, 1)
+    forcings[0] = splitted_test_data[0, :, -1].view(-1, 1)
+    forcings[1] = splitted_test_data[1, :, -1].view(-1, 1)
+    forcings[2] = train_data[0:2500, -1].view(-1, 1)
+    forcings[3] = splitted_test_data[2, :, -1].view(-1, 1)
+    forcings[4] = train_data[2500:, -1].view(-1, 1)
+    forcings[5] = splitted_test_data[3, :, -1].view(-1, 1)
+    forcings[6] = splitted_test_data[4, :, -1].view(-1, 1)
 
+    y_test = torch.zeros(7, 2500, 2)
+    y_test[0] = splitted_test_data[0, :, :-1]
+    y_test[1] = splitted_test_data[1, :, :-1]
+    y_test[2] = train_data[0:2500, :-1]
+    y_test[3] = splitted_test_data[2, :, :-1]
+    y_test[4] = train_data[2500:, :-1]
+    y_test[5] = splitted_test_data[3, :, :-1]
+    y_test[6] = splitted_test_data[4, :, :-1]
 
-def create_full_batch(num_times_per_obs, mini_batch_size, x):
-    if x.shape[0] > 2500:
-
-        i1 = np.arange(0, 2500 - num_times_per_obs)
-        i2 = np.arange(2500, 5000 - num_times_per_obs)
-        indices = np.hstack((i1, i2))
-        perm_indices = np.random.permutation(indices)[:mini_batch_size]
-
-        x_full_train = x[perm_indices, :]
-
-        targets = np.zeros((num_times_per_obs, mini_batch_size, x.shape[1]))
-        for i, start_index in enumerate(perm_indices):
-            targets[:, i, :] = x[start_index : start_index + num_times_per_obs, :]
-
-        return torch.tensor(x_full_train, dtype=torch.float32), torch.tensor(
-            targets, dtype=torch.float32
-        )
-
-    else:
-        print(ValueError("Please use the create_batch function if only one time series is used."))
-
-
-def predict(model, x_test, forcing, t, val_model=None):
-    model.eval()
-    predictions = torch.empty((x_test.shape[0], t, x_test.shape[1]))
-    with torch.no_grad():
-        for i in range(x_test.shape[0]):
-            pred = model(
-                inputs=x_test[i].view(1, 2),
-                forcing=forcing[i, :t].view(-1, 1).unsqueeze(1),
-                timespan=t,
-            )
-            predictions[i] = pred.squeeze(1)
-
-    if val_model:
-        val_predictions = torch.empty((x_test.shape[0], t, x_test.shape[1]))
-        val_model.eval()
-        with torch.no_grad():
-            for i in range(x_test.shape[0]):
-                val_pred = val_model(
-                    inputs=x_test[i].view(1, 2),
-                    forcing=forcing[i, :t].view(-1, 1).unsqueeze(1),
-                    timespan=t,
-                )
-                val_predictions[i] = val_pred.squeeze(1)
-
-        return predictions, val_predictions
-
-    return predictions
+    return x_test, forcings, y_test
 
 
-def create_full_plots(test_data, predictions, plot_range, val_predictions):
+def create_full_plots(
+        test_data: np.ndarray,
+        predictions: np.ndarray,
+        plot_range: int,
+        val_predictions: np.ndarray
+) -> list:
+    """
+    Creates a plot for every predicted forcing amplitude trajectory.
+
+    :param test_data: Ground truth test data.
+    :param predictions: Predictions of the train model.
+    :param plot_range: Number of timesteps for plotting.
+    :param val_predictions: Predictions of the validation model.
+
+    :return: List of plots for every forcing amplitude.
+    """
     plots = []
     freq = [0.2, 0.35, 0.46, 0.48, 0.49, 0.58, 0.75]
     for i in range(test_data.shape[0]):
@@ -296,10 +254,24 @@ def make_report(
     prediction: np.ndarray,
     test_data: np.ndarray,
     plot_range: int,
-    losses=None,
-    val_losses=None,
-    val_prediction=None,
-):
+    losses: np.ndarray = None,
+    val_losses: np.ndarray = None,
+    val_prediction: np.ndarray = None,
+) -> None:
+    """
+    Creates a report with hyperparameters and predictions.
+
+    :param model_name: Name of the Model
+    :param param_dict: Dictionary with hyperparameters.
+    :param prediction: Predictions of the training model.
+    :param test_data: Ground truth test data.
+    :param plot_range: Number of timesteps for plotting.
+    :param losses: Losses of the training model.
+    :param val_losses: Losses of the validation model.
+    :param val_prediction: Predictions of the validation model.
+
+    :return: Creates a pdf file.
+    """
     plt.figure()
     plt.axis("off")
     text = "\n".join([f"{key}: {value}" for key, value in param_dict.items()])
@@ -313,6 +285,7 @@ def make_report(
         transform=plt.gca().transAxes,
     )
     dict_page = plt.gcf()
+    loss_page = None
 
     if val_losses and losses:
         plt.figure()
@@ -355,9 +328,7 @@ def make_report(
     plt.grid(True)
     q1_q2 = plt.gcf()
 
-    loss_page = None
-
-    with PdfPages(f"../evaluation/{model_name}_eval.pdf") as pdf:
+    with PdfPages(f"{model_name}_eval.pdf") as pdf:
         pdf.savefig(dict_page)
         if losses or val_losses:
             pdf.savefig(loss_page)
@@ -367,13 +338,73 @@ def make_report(
             pdf.savefig(plots[i])
 
 
+def predict(
+        model: nn.Module,
+        x_test: torch.Tensor,
+        forcing: torch.Tensor,
+        t: int,
+        val_model: nn.Module = None
+) -> typing.Union[torch.Tensor, tuple[torch.Tensor, torch.Tensor]]:
+    """
+    Makes predictions with the training and validation model.
+
+    :param model: Training model.
+    :param x_test: Initial conditions for every forcing amplitude trajectory.
+    :param forcing: External forcing.
+    :param t: Number of timesteps to predict.
+    :param val_model: Validation model.
+
+    :return: Predictions of the training and validation model.
+    """
+    model.eval()
+    predictions = torch.empty((x_test.shape[0], t, x_test.shape[1]))
+    with torch.no_grad():
+        for i in range(x_test.shape[0]):
+            pred = model(
+                inputs=x_test[i].view(1, 2),
+                forcing=forcing[i, :t].view(-1, 1).unsqueeze(1),
+                timespan=t,
+            )
+            predictions[i] = pred.squeeze(1)
+
+    if val_model:
+        val_predictions = torch.empty((x_test.shape[0], t, x_test.shape[1]))
+        val_model.eval()
+        with torch.no_grad():
+            for i in range(x_test.shape[0]):
+                val_pred = val_model(
+                    inputs=x_test[i].view(1, 2),
+                    forcing=forcing[i, :t].view(-1, 1).unsqueeze(1),
+                    timespan=t,
+                )
+                val_predictions[i] = val_pred.squeeze(1)
+
+        return predictions, val_predictions
+
+    return predictions
+
+
 def get_data(path: str) -> np.ndarray:
+    """
+    Loads data from a file.
+
+    :param path: Path to file.
+
+    :return: Data from a file.
+    """
     data = np.loadtxt(path, delimiter=",", skiprows=1)
 
     return data
 
 
-def get_change_indices(arr):
+def get_change_indices(arr: np.ndarray) -> np.ndarray:
+    """
+    Gets the indices when the forcing amplitude changes.
+
+    :param arr: Array.
+
+    :return: Change indices
+    """
     fifth_feature = arr[:, -1]
 
     change_indices = np.where(fifth_feature[:-1] != fifth_feature[1:])[0] + 1
@@ -381,7 +412,14 @@ def get_change_indices(arr):
     return change_indices
 
 
-def split_on_change(arr):
+def split_on_change(arr: np.ndarray) -> np.ndarray:
+    """
+    Splits the array when the forcing amplitude changes.
+
+    :param arr: Array.
+
+    :return: Splitted array.
+    """
     change_indices = get_change_indices(arr)
     split_arrays = np.split(arr, change_indices)
     split_arrays = np.delete(split_arrays, -1, axis=-1)
