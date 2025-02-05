@@ -2,15 +2,15 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-from Code.utils.utils import get_data, FullDataLoader
-from Code.utils.ltc_utils import initialize_ltc, train_ltc, evaluate_ltc
+from lib.utils.utils import get_data, FullDataLoader
+from lib.utils.node_utils import initialize_node, train_node, evaluate_node
 
 
 def main():
     # Model parameters
     units = 32
     input_size = 3
-    wiring_output_size = 3
+    n_layers = 1
     output_size = 2
     timespan = 10
 
@@ -21,7 +21,7 @@ def main():
     lr = 0.0001
     val_range = 500
 
-    model_name = f"enforced_ltc_u{units}_ode{ode_unfolds}_ts{timespan}_e{epochs}_bs{batch_size}_lr{lr}"
+    model_name = f"enforced_node_u{units}_ode{ode_unfolds}_ts{timespan}_e{epochs}_bs{batch_size}_lr{lr}"
 
     # Load and preprocess train and validation data
     train_data = get_data("../Datasets/DORA_Train.csv")[:, 1:4]
@@ -29,14 +29,13 @@ def main():
 
     data_loader = FullDataLoader(train_data, timespan, batch_size)
 
-    # Initialize LTC
-    ltc_model, wiring, param_dict = initialize_ltc(
+    # Initialize NODE
+    node_model, param_dict = initialize_node(
         model_name=model_name,
         input_size=input_size,
         output_size=output_size,
-        wiring_output_size=wiring_output_size,
+        n_layers=n_layers,
         units=units,
-        ode_unfolds=ode_unfolds,
         timespan=timespan,
         batch_size=batch_size,
         val_range=val_range,
@@ -46,11 +45,11 @@ def main():
 
     # Initialize loss function and optimizer
     loss_function = nn.MSELoss()
-    optimizer = optim.Adam(ltc_model.parameters(), lr=lr)
+    optimizer = optim.Adam(node_model.parameters(), lr=lr)
 
-    # Train the LTC
-    train_ltc(
-        ltc_model=ltc_model,
+    # Train the NODE
+    train_node(
+        node_model=node_model,
         model_name=model_name,
         epochs=epochs,
         train_tensor=train_tensor,
@@ -62,8 +61,8 @@ def main():
         param_dict=param_dict
     )
 
-    # Evaluate LTC and create report
-    evaluate_ltc(param_dict=param_dict, wiring=wiring)
+    # Evaluate NODE and create report
+    evaluate_node(param_dict=param_dict)
 
 
 if __name__ == "__main__":

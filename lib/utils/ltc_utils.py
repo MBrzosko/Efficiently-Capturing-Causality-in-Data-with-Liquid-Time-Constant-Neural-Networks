@@ -4,9 +4,9 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-from Code.models.ltc_model import EnforcedLTCModel
-from Code.models.wiring import FullyConnected, Wiring
-from Code.utils.utils import get_data, split_on_change, assert_test_data, predict, make_report
+from lib.models.ltc_model import EnforcedLTCModel
+from lib.models.wiring import FullyConnected, Wiring
+from lib.utils.utils import get_data, split_on_change, assert_test_data, predict, make_report
 
 
 def create_param_dict(

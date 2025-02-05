@@ -4,8 +4,8 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-from Code.models.node_model import EnforcedNeuralODE, NeuralODEFunc
-from Code.utils.utils import get_data, split_on_change, assert_test_data, predict, make_report
+from lib.models.node_model import EnforcedNeuralODE, NeuralODEFunc
+from lib.utils.utils import get_data, split_on_change, assert_test_data, predict, make_report
 
 
 def create_param_dict(

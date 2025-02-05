@@ -130,7 +130,7 @@ class EnforcedLTCModel(nn.Module):
 
 
 """
-The Code for the LTCCell is taken from https://github.com/mlech26l/ncps.
+The lib for the LTCCell is taken from https://github.com/mlech26l/ncps.
 """
 
 

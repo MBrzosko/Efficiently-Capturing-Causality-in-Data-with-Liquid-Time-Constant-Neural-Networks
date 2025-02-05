@@ -2,8 +2,8 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-from Code.utils.utils import get_data, FullDataLoader
-from Code.utils.node_utils import initialize_node, train_node, evaluate_node
+from lib.utils.utils import get_data, FullDataLoader
+from lib.utils.lstm_utils import initialize_lstm, train_lstm, evaluate_lstm
 
 
 def main():
@@ -21,7 +21,7 @@ def main():
     lr = 0.0001
     val_range = 500
 
-    model_name = f"enforced_node_u{units}_ode{ode_unfolds}_ts{timespan}_e{epochs}_bs{batch_size}_lr{lr}"
+    model_name = f"enforced_lstm_u{units}_ode{ode_unfolds}_ts{timespan}_e{epochs}_bs{batch_size}_lr{lr}"
 
     # Load and preprocess train and validation data
     train_data = get_data("../Datasets/DORA_Train.csv")[:, 1:4]
@@ -29,8 +29,8 @@ def main():
 
     data_loader = FullDataLoader(train_data, timespan, batch_size)
 
-    # Initialize NODE
-    node_model, param_dict = initialize_node(
+    # Initialize LSTM
+    lstm_model, param_dict = initialize_lstm(
         model_name=model_name,
         input_size=input_size,
         output_size=output_size,
@@ -45,11 +45,11 @@ def main():
 
     # Initialize loss function and optimizer
     loss_function = nn.MSELoss()
-    optimizer = optim.Adam(node_model.parameters(), lr=lr)
+    optimizer = optim.Adam(lstm_model.parameters(), lr=lr)
 
-    # Train the NODE
-    train_node(
-        node_model=node_model,
+    # Train the LSTM
+    train_lstm(
+        lstm_model=lstm_model,
         model_name=model_name,
         epochs=epochs,
         train_tensor=train_tensor,
@@ -61,8 +61,8 @@ def main():
         param_dict=param_dict
     )
 
-    # Evaluate NODE and create report
-    evaluate_node(param_dict=param_dict)
+    # Evaluate LSTM and create report
+    evaluate_lstm(param_dict=param_dict)
 
 
 if __name__ == "__main__":

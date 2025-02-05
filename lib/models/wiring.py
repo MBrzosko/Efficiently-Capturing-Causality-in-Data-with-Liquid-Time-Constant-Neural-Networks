@@ -2,7 +2,7 @@ import numpy as np
 
 
 """
-The Code for the Wiring is taken from https://github.com/mlech26l/ncps.
+The lib for the Wiring is taken from https://github.com/mlech26l/ncps.
 """
 
 
