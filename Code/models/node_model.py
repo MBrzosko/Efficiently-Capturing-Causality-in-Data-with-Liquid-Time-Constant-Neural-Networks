@@ -40,7 +40,7 @@ class NeuralODEFunc(nn.Module):
 
         self.net = nn.Sequential(*layers)
 
-    def forward(self, y: torch.Tensor) -> torch.Tensor:
+    def forward(self, t, y: torch.Tensor) -> torch.Tensor:
         """
         Forward pass of the NeuralODEFunc.
 
