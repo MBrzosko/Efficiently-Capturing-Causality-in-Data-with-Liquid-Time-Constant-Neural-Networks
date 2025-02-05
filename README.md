@@ -10,7 +10,7 @@ This repository provides all necessary models, datasets and utilities to reprodu
 
 
 ## Prerequisites
-All models were implemented with PyTorch 2.5.1 and Python 3.12. To use the Neural ODE, the Python package `torchdiffeq` ([link](https://github.com/rtqichen/torchdiffeq)) is required. To install the `torchdiffeq` package:
+All models were implemented with PyTorch 2.5.1 and Python 3.12. To use the Neural ODE, the Python package `torchdiffeq` from [https://github.com/rtqichen/torchdiffeq](https://github.com/rtqichen/torchdiffeq) is required. To install the `torchdiffeq` package:
 ```bash
 pip install torchdiffeq
 ```
