@@ -26,6 +26,6 @@ The Neural ODE consists of two components. The `NeuralODEFunc` parametrises the 
 The model was derived from [https://github.com/YuliaRubanova/latent_ode](https://github.com/YuliaRubanova/latent_ode).
 
 ### LSTM
-The `lstm_models.py` script contains only the `EnforcedLSTMModel`-
+The `lstm_models.py` script contains only the `EnforcedLSTMModel`.
 
 ## Training and evaluating the models
