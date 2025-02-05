@@ -6,7 +6,7 @@ import torchdiffeq
 
 """
 Installation of the python package torchdiffeq is required (https://github.com/rtqichen/torchdiffeq)
-Additional information about the ODE code can be found here: https://github.com/YuliaRubanova/latent_ode
+Additional information about the ODE Code can be found here: https://github.com/YuliaRubanova/latent_ode
 """
 
 
