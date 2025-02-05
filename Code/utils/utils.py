@@ -200,14 +200,14 @@ def create_full_plots(
         rmse = torch.sqrt(
             criterion(
                 torch.tensor(test_data[i], dtype=torch.float32),
-                torch.tensor(predictions[i], dtype=torch.float32),
+                predictions[i],
             )
         )
         if val_predictions is not None:
             val_rmse = torch.sqrt(
                 criterion(
                     torch.tensor(test_data[i], dtype=torch.float32),
-                    torch.tensor(val_predictions[i], dtype=torch.float32),
+                    val_predictions[i],
                 )
             )
 
@@ -287,7 +287,7 @@ def make_report(
     dict_page = plt.gcf()
     loss_page = None
 
-    if val_losses and losses:
+    if val_losses.any() and losses.any():
         plt.figure()
         plt.plot(range(1, len(losses) + 1), losses, label="Training Loss")
         plt.plot(range(1, len(val_losses) + 1), val_losses, label="Validation Loss")
@@ -330,7 +330,7 @@ def make_report(
 
     with PdfPages(f"{model_name}_eval.pdf") as pdf:
         pdf.savefig(dict_page)
-        if losses or val_losses:
+        if losses.any() or val_losses.any():
             pdf.savefig(loss_page)
         pdf.savefig(q1_q2)
 
