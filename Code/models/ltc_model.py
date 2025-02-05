@@ -9,6 +9,16 @@ class LTCModel(nn.Module):
     def __init__(
         self, units: int, input_size: int, output_size: int, wiring: Wiring, ode_unfolds: int = 6, epsilon: float = 1e-8
     ):
+        """
+        LTC Model.
+
+        :param units: Number of neurons.
+        :param input_size: Number of input features.
+        :param output_size: Number of output features.
+        :param wiring: Wiring of the LTC.
+        :param ode_unfolds: Number of iterations through the ODE solver.
+        :param epsilon: Non-zero value.
+        """
         super(LTCModel, self).__init__()
         self.units = units
         self.input_dim = input_size
@@ -27,7 +37,17 @@ class LTCModel(nn.Module):
             implicit_param_constraints=True,
         )
 
-    def forward(self, inputs: torch.Tensor, timespan: int, h_state: torch.Tensor = None, ts: float= 0.1):
+    def forward(self, inputs: torch.Tensor, timespan: int, h_state: torch.Tensor = None, ts: float = 0.1):
+        """
+        Forward pass of the LTC model.
+
+        :param inputs: Initial condition.
+        :param timespan: Number of timesteps to predict.
+        :param h_state: Hidden state.
+        :param ts: Delta t.
+
+        :return: Predicted sequence.
+        """
         if not h_state:
             h_state = torch.zeros((inputs.shape[0], self.wiring.units))
 
@@ -45,6 +65,16 @@ class EnforcedLTCModel(nn.Module):
     def __init__(
         self, units: int, input_size: int, output_size: int, wiring: Wiring, ode_unfolds: int = 6, epsilon: float = 1e-8
     ):
+        """
+        LTC Model with external enforcing.
+
+        :param units: Number of neurons.
+        :param input_size: Number of input features.
+        :param output_size: Number of output features.
+        :param wiring: Wiring of the LTC.
+        :param ode_unfolds: Number of iterations through the ODE solver.
+        :param epsilon: Non-zero value.
+        """
         super(EnforcedLTCModel, self).__init__()
         self.units = units
         self.input_dim = input_size
@@ -73,6 +103,17 @@ class EnforcedLTCModel(nn.Module):
             h_state: torch.Tensor = None,
             ts: float = 0.1
     ):
+        """
+        Forward pass of the LTC model with external forcing.
+
+        :param inputs: Initial condition.
+        :param forcing: External forcing.
+        :param timespan: Number of timesteps to predict.
+        :param h_state: Hidden state.
+        :param ts: Delta t.
+
+        :return: Predicted sequence.
+        """
         if not h_state:
             h_state = torch.zeros((inputs.shape[0], self.wiring.units))
 
@@ -86,6 +127,11 @@ class EnforcedLTCModel(nn.Module):
             outputs[t, :, :] = h_out
 
         return outputs
+
+
+"""
+The code for the LTCCell is taken from https://github.com/mlech26l/ncps.
+"""
 
 
 class LTCCell(nn.Module):
