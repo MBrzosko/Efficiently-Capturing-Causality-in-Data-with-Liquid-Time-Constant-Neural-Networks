@@ -1,6 +1,11 @@
 import numpy as np
 
 
+"""
+The code for the Wiring is taken from https://github.com/mlech26l/ncps.
+"""
+
+
 class Wiring:
     def __init__(self, units):
         self.units = units
