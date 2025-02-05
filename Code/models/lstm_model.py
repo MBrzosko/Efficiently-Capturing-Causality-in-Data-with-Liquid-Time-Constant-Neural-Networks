@@ -26,7 +26,13 @@ class EnforcedLSTMModel(nn.Module):
         )
         self.fc = nn.Linear(hidden_size, output_size)
 
-    def forward(self, inputs: torch.Tensor, forcing: torch.Tensor, timespan: int, h_state: torch.Tensor = None):
+    def forward(
+            self,
+            inputs: torch.Tensor,
+            forcing: torch.Tensor,
+            timespan: int,
+            h_state: torch.Tensor = None
+    ) -> torch.Tensor:
         """
         Foward pass of the LSTM Model.
 
