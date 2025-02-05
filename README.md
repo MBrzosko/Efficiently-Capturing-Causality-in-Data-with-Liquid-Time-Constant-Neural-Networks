@@ -34,6 +34,7 @@ The workflow of the scripts `lib.run_ltc.py`, `lib.run_lstm.py` and `lib.run_nod
 2. Load and preprocess data
 3. Initialize model
 4. Initialize the loss function and optimizer
-5. Train the model
-6. Evaluate the model
+5. Train model
+6. Evaluate model
 
+Each script is pre-configured and will initiate the training and evaluation process. Hyperparameters and datasets can be modified as needed. The function `train_MODEL_NAME` will save the best training and validation model parameters and the corresponding loss curves. `evaluate_MODEL_NAME` will make predictions for each forcing amplitude trajectory and create a report containing all parameters and visualizations of the predictions.
