@@ -3,7 +3,15 @@ import torch.nn as nn
 
 
 class EnforcedLSTMModel(nn.Module):
-    def __init__(self, input_size, hidden_size, num_layers, output_size):
+    def __init__(self, input_size: int, hidden_size: int, num_layers: int, output_size: int):
+        """
+        LSTM Model with external enforcing.
+
+        :param input_size: Input dimension.
+        :param hidden_size: Number of neurons.
+        :param num_layers: Number of layers.
+        :param output_size: Output dimension.
+        """
         super(EnforcedLSTMModel, self).__init__()
         self.input_size = input_size
         self.hidden_size = hidden_size
@@ -18,7 +26,17 @@ class EnforcedLSTMModel(nn.Module):
         )
         self.fc = nn.Linear(hidden_size, output_size)
 
-    def forward(self, inputs, forcing, timespan, h_state=None):
+    def forward(self, inputs: torch.Tensor, forcing: torch.Tensor, timespan: int, h_state: torch.Tensor = None):
+        """
+        Foward pass of the LSTM Model.
+
+        :param inputs: Initial condition.
+        :param forcing: External forcing.
+        :param timespan: Number of timesteps to predict.
+        :param h_state: Hidden state.
+
+        :return: Predicted sequence.
+        """
         if h_state is None:
             h0 = torch.zeros(
                 self.num_layers, inputs.shape[0], self.hidden_size, dtype=torch.float32
