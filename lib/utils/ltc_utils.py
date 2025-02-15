@@ -33,7 +33,7 @@ def create_param_dict(
     :param output_size: Output dimension of the model.
     :param wiring_output_size: Output wiring dimension.
     :param units: Number of neurons.
-    :param ode_unfolds: Number of iteration throught the ODE solver.
+    :param ode_unfolds: Number of iteration through the ODE solver.
     :param timespan: Number of time steps to predict.
     :param batch_size: Batch size.
     :param val_range: Validation range.
