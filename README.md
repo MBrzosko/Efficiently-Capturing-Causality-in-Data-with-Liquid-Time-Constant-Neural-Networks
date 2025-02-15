@@ -18,7 +18,7 @@ pip install torchdiffeq
 ## Models
 
 ### Liquid Time-Constant Neural Network 
-The LTC model can be found under `Code.models.ltc_model`. Two versions of the LTC model are provided. The difference between the `LTCModel` and the `EnforcedLTCModel` is that the enforced model requires the forcing at a given time step as an exogenous input, whereas the plain model uses the forcing as a feature input.
+The LTC model can be found under `lib.models.ltc_model`. Two versions of the LTC model are provided. The difference between the `LTCModel` and the `EnforcedLTCModel` is that the enforced model requires the forcing at a given time step as an exogenous input, whereas the plain model uses the forcing as a feature input.
 The `LTCCell` and `Wiring` were taken from [https://github.com/mlech26l/ncps](https://github.com/mlech26l/ncps).
 
 ### Neural ODE
@@ -26,6 +26,15 @@ The Neural ODE consists of two components. The `NeuralODEFunc` parametrises the 
 The model was derived from [https://github.com/YuliaRubanova/latent_ode](https://github.com/YuliaRubanova/latent_ode).
 
 ### LSTM
-The `lstm_models.py` script contains only the `EnforcedLSTMModel`-
+The `lstm_models.py` script contains only the `EnforcedLSTMModel`.
 
 ## Training and evaluating the models
+The workflow of the scripts `lib.run_ltc.py`, `lib.run_lstm.py` and `lib.run_node.py` are the same for each model:
+1. Define hyperparameters and model name
+2. Load and preprocess data
+3. Initialize model
+4. Initialize the loss function and optimizer
+5. Train model
+6. Evaluate model
+
+Each script is pre-configured and will initiate the training and evaluation process. Hyperparameters and datasets can be modified as needed. The function `train_MODEL_NAME` will save the best training and validation model parameters and the corresponding loss curves. `evaluate_MODEL_NAME` will make predictions for each forcing amplitude trajectory and create a report containing all parameters and visualizations of the predictions.
